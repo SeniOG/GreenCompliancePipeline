@@ -6,11 +6,15 @@ import pandas as pd
 
 def sync_gleif_data(url, output_path):
     print(f"Fetching GLEIF Global LEI data from {url}...")
-    
-    # We use a header to identify our tool (good practice for GLEIF)
     headers = {'User-Agent': 'GreenCompliancePipeline/1.0 (LocalTest)'}
-    response = requests.get(url, headers=headers, stream=True)
     
+    # Use allow_redirects=True to follow the API to the storage bucket
+    response = requests.get(url, headers=headers, stream=True, allow_redirects=True)
+    
+    # Check if the request actually worked
+    if response.status_code != 200:
+        raise Exception(f"GLEIF Download failed with status {response.status_code}")
+
     zip_path = "data/temp_gleif.zip"
     os.makedirs("data", exist_ok=True)
 
